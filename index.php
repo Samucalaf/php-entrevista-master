@@ -1,34 +1,32 @@
-<?php
+<?php 
+session_start();
 
-require 'connection.php';
+require 'service.php';
+require 'view.php';
 
-$connection = new Connection();
 
-$users = $connection->query("SELECT * FROM users");
+$message = '';
+$messageType = '';
 
-echo "<table border='1'>
 
-    <tr>
-        <th>ID</th>    
-        <th>Nome</th>    
-        <th>Email</th>
-        <th>Ação</th>    
-    </tr>
-";
+if ($_SERVER['REQUEST_METHOD'] === 'POST'){
+    $action = $_POST['action'] ?? '';
+    $result = processUserAction($action);
 
-foreach($users as $user) {
 
-    echo sprintf("<tr>
-                      <td>%s</td>
-                      <td>%s</td>
-                      <td>%s</td>
-                      <td>
-                           <a href='#'>Editar</a>
-                           <a href='#'>Excluir</a>
-                      </td>
-                   </tr>",
-        $user->id, $user->name, $user->email);
+    $_SESSION['message'] = $result['message'];
+    $_SESSION['messageType'] = $result['type'];
 
+    header ('Location: ' . $_SERVER['PHP_SELF']);
+    exit;
 }
 
-echo "</table>";
+if (isset($_SESSION['message'])){
+    $message = $_SESSION['message'];
+    $messageType = $_SESSION['messageType'];
+    unset($_SESSION['message']);
+    unset($_SESSION['messageType']);
+}
+
+$data = getPageData();
+showPage($data['users'], $data['colors'], $data['userColors'], $message, $messageType);
