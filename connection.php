@@ -1,32 +1,33 @@
 <?php
 
-class Connection {
+class Connection
+{
 
-    private $databaseFile;
-    private $connection;
+
+    private $pdo;
 
     public function __construct()
     {
-        $this->databaseFile = realpath(__DIR__ . "/database/db.sqlite");
-        $this->connect();
+        $databaseFile = realpath(__DIR__ . "/database/db.sqlite");
+        $this->pdo = new PDO("sqlite:{$databaseFile}");
+        $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
 
-    private function connect()
+    public function query($sql, $params = [])
     {
-        return $this->connection = new PDO("sqlite:{$this->databaseFile}");
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
-    public function getConnection()
+    public function execute($sql, $params = [])
     {
-        return $this->connection ?: $this->connection = $this->connect();
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute($params);
     }
 
-    public function query($query)
+    public function lastInsertId()
     {
-        $result      = $this->getConnection()->query($query);
-
-        $result->setFetchMode(PDO::FETCH_INTO, new stdClass);
-
-        return $result;
+        return $this->pdo->lastInsertId();
     }
 }
