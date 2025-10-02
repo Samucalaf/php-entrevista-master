@@ -29,10 +29,36 @@ function validateRequiredFields(array $fields)
         }
     }
 }
+
+function validateEmail($email)
+{
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        return [
+            'message' => 'Email Inválido',
+            'type' => 'danger'
+        ];
+    }
+
+    $allowedTlds = ['com', 'org', 'net', 'edu', 'gov', 'io', 'br'];
+    $parts = explode('@', $email);
+    $domainParts = explode('.', $parts[1] ?? '');
+    $tld = strtolower(end($domainParts));
+
+    if (!in_array($tld, $allowedTlds)) {
+        return ['message' => 'Domínio do email inválido', 'type' => 'danger'];
+    }
+
+    return ['message' => 'Email válido', 'type' => 'success'];
+}
 function createUserService()
 {
     $name = trim($_POST['name'] ?? '');
     $email = trim($_POST['email'] ?? '');
+
+    $emailValidation = validateEmail($email);
+    if ($emailValidation['type'] === 'danger') {
+        return $emailValidation;
+    }
 
     $error = validateRequiredFields(['Nome' => $name, 'Email' => $email]);
 
@@ -55,6 +81,11 @@ function updateUserService()
     $id = $_POST['id'] ?? '';
     $name = trim($_POST['name'] ?? '');
     $email = trim($_POST['email'] ?? '');
+
+    $emailValidation = validateEmail($email);
+    if ($emailValidation['type'] === 'danger') {
+        return $emailValidation;
+    }
 
     $error = validateRequiredFields(['ID' => $id, 'Nome' => $name, 'Email' => $email]);
 
