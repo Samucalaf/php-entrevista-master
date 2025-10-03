@@ -12,7 +12,7 @@ function processUserAction($action)
             return updateUserService();
         case 'delete':
             return deleteUserService();
-        case 'assing_color':
+        case 'assign_color':
             return assignColorService();
         case 'remove_color':
             return removeColorService();
@@ -50,6 +50,7 @@ function validateEmail($email)
 
     return ['message' => 'Email válido', 'type' => 'success'];
 }
+
 function createUserService()
 {
     $name = trim($_POST['name'] ?? '');
@@ -69,7 +70,7 @@ function createUserService()
     try {
         $result = createUser($name, $email);
         return $result
-            ? ['message' => 'Usuário criado com sucesso!', 'type' => 'sucess']
+            ? ['message' => 'Usuário criado com sucesso!', 'type' => 'success']
             : ['message' => 'Erro ao criar usuário', 'type' => 'danger'];
     } catch (Exception $e) {
         return ['message' => 'Erro ao criar usuário: ' . $e->getMessage(), 'type' => 'danger'];
@@ -78,7 +79,7 @@ function createUserService()
 
 function updateUserService()
 {
-    $id = $_POST['id'] ?? '';
+    $id = (int)($_POST['id'] ?? 0);
     $name = trim($_POST['name'] ?? '');
     $email = trim($_POST['email'] ?? '');
 
@@ -106,7 +107,7 @@ function updateUserService()
 
 function deleteUserService()
 {
-    $id = $_POST['id'] ?? '';
+    $id = (int)($_POST['id'] ?? 0);
 
     if (!$id || $id < 0) {
         return ['message' => 'ID do usuário é obrigatório', 'type' => 'warning'];
